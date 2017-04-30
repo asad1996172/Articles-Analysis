@@ -1,0 +1,17 @@
+<---------- Results with K Nearest Neighbours ---------->
+Variance % for KNN Neighbours with (K = 3) : 95.9183673469 %
+<------------------------------------------------------->
+
+<---------- Results with Logistic Regression ---------->
+Variance % for Logistic Regression : 99.4434137291 %
+<------------------------------------------------------->
+
+<---------- Results with Nueral Networks ---------->
+Variance % for Nueral Networks : 99.4434137291 %
+<------------------------------------------------------->
+
+<---------- Results with Naive Bayes ---------->
+Variance % for Naive Bayes : 99.814471243 %
+<------------------------------------------------------->
+
+For 20% test data
