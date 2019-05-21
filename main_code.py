@@ -77,4 +77,6 @@ gnb = MultinomialNB()
 gnb.fit(x_train, y_train)
 print('Correct % for Naive Bayes : ' + str(gnb.score(x_test, y_test)*100)+ ' %')
 
+print('1')
+
 print('<========================================================>\n')
