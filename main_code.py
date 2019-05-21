@@ -24,7 +24,7 @@ def cleaning(s):
     return s
 
 data = pd.read_csv("Articles.csv",encoding="ISO-8859-1")
-data = data.sample(frac=1).reset_index(drop=True) # Shuffling Rows
+data = data.sample(frac=1).reset_index(drop=True)           # Shuffling Rows
 
 data["Article"] = data["Article"].str.replace("strong>","")
 
@@ -35,17 +35,15 @@ business = data[data['NewsType'] == 'business']
 sports_Words = pd.Series(' '.join(sports['Article'].astype(str)).lower().split(" ")).value_counts() # 20 most common words
 business_Words = pd.Series(' '.join(business['Article'].astype(str)).lower().split(" ")).value_counts() # 20 most common words
 
-
-vectorizer = CountVectorizer()
-x = vectorizer.fit_transform(data['Article'])
-
+x = data['Article']
 encoder = LabelEncoder()
 y = encoder.fit_transform(data['NewsType'])
 
-
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
 
-
+vectorizer = CountVectorizer()
+x_train = vectorizer.fit_transform(x_train)
+x_test = vectorizer.transform(x_test)
 
 print('<================ K Nearest Neighbours =================>')
 neigh = KNeighborsClassifier(n_neighbors=3)
@@ -75,8 +73,6 @@ print('<=======================================================>\n')
 print('<============== Naive Bayes ============================>')
 gnb = MultinomialNB()
 gnb.fit(x_train, y_train)
-print('Correct % for Naive Bayes : ' + str(gnb.score(x_test, y_test)*100)+ ' %')
-
-print('1')
+print('Correct % for Naive Bayes : ' + str(gnb.score(x_test, y_test)*100) + ' %')
 
 print('<========================================================>\n')
