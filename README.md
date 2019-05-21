@@ -2,6 +2,12 @@
 Predictive analysis on the dataset taken from https://www.kaggle.com/asad1m9a9h6mood/news-articles. It has news articles from 2015 till 2018, related to business and sports.
 Aim of this project was to compare the performance of different machine learning methods and so I used the simple bag-of-words approach for classification. 
 
+### Install Requirements
+This code requires python3. To install the required dependencies, use the following pip command
+
+```pip install -r requirements.txt```
+
+### Discussion and Results
 First, I did some word analysis on the different News Types. There are two News Types in this dataset i.e., Business and Sports. Following are the top 20 words with respect to frequency along with their number of occurences.
 
 ![Business Words](business_words.jpg) 
