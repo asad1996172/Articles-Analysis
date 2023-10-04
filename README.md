@@ -42,8 +42,8 @@ I used the 80-20 train test split. Following are the accuracies for different mo
 
 | Classifier | Accuracy  |
 |------------|---------- |
-| KNN (k=3)  | 93.88%    |
-| LR         | 99.26%    |
+| KNN (k=3)  | 94.06%    |
+| LR         | 99.44%    |
 | FNN        | 99.07%    |
 | MNB        | **99.63%**|
 

@@ -8,71 +8,76 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 
-def cleaning(s):
-    s = str(s)
+SEED = 10
+
+
+def clean_text(s: str) -> str:
+    """
+    Clean the given text string.
+    :param s: Text string to be cleaned.
+    :return: Cleaned text string.
+    """
     s = s.lower()
-    s = re.sub('\s\W',' ',s)
-    s = re.sub('\W,\s',' ',s)
-    s = re.sub(r'[^\w]', ' ', s)
-    s = re.sub("\d+", "", s)
-    s = re.sub('\s+',' ',s)
-    s = re.sub('[!@#$_]', '', s)
-    s = s.replace("co","")
-    s = s.replace("https","")
-    s = s.replace(",","")
-    s = s.replace("[\w*"," ")
+    s = re.sub(r"\s\W|\\W,\s", " ", s)
+    s = re.sub(r"[^\w]", " ", s)
+    s = re.sub(r"\d+", "", s)
+    s = re.sub(r"\s+", " ", s)
+    s = s.replace("co", "").replace("https", "").replace(",", "").replace("[\w*", " ")
     return s
 
-data = pd.read_csv("Articles.csv",encoding="ISO-8859-1")
-data = data.sample(frac=1).reset_index(drop=True)           # Shuffling Rows
 
-data["Article"] = data["Article"].str.replace("strong>","")
-
-data['Article'] = [cleaning(s) for s in data['Article']]
-
-sports = data[data['NewsType'] == 'sports']
-business = data[data['NewsType'] == 'business']
-sports_Words = pd.Series(' '.join(sports['Article'].astype(str)).lower().split(" ")).value_counts() # 20 most common words
-business_Words = pd.Series(' '.join(business['Article'].astype(str)).lower().split(" ")).value_counts() # 20 most common words
-
-x = data['Article']
-encoder = LabelEncoder()
-y = encoder.fit_transform(data['NewsType'])
-
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
-
-vectorizer = CountVectorizer()
-x_train = vectorizer.fit_transform(x_train)
-x_test = vectorizer.transform(x_test)
-
-print('<================ K Nearest Neighbours =================>')
-neigh = KNeighborsClassifier(n_neighbors=3)
-neigh.fit(x_train, y_train)
-print('Correct % for KNN Neighbours with (K = 3) : ' + str(neigh.score(x_test, y_test)*100)+ ' %')
-
-print('<=======================================================>\n')
+def load_and_preprocess_data(filename: str) -> pd.DataFrame:
+    """
+    Load data from a CSV file and preprocess it.
+    :param filename: Path to the CSV file.
+    :return: Preprocessed data.
+    """
+    data = pd.read_csv(filename, encoding="ISO-8859-1")
+    data = data.sample(frac=1, random_state=SEED).reset_index(drop=True)
+    data["Article"] = data["Article"].str.replace("strong>", "")
+    data["Article"] = data["Article"].apply(clean_text)
+    return data
 
 
+def train_and_test_model(model, x_train, y_train, x_test, y_test):
+    """
+    Train a model and test its accuracy.
+    :param model: The model to train and test.
+    :param x_train: Training data.
+    :param y_train: Training labels.
+    :param x_test: Testing data.
+    :param y_test: Testing labels.
+    """
+    model_name = type(model).__name__
+    model.fit(x_train, y_train)
+    accuracy = model.score(x_test, y_test) * 100
+    print(f"<================ {model_name} =================>")
+    print(f"Correct % for {model_name}: {accuracy:.2f} %")
+    print("<=======================================================>\n")
 
-print('<================== Nueral Networks ====================>')
-clf = MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(6,), random_state=1)
-clf.fit(x_train,y_train)
-print('Correct % for Nueral Networks : ' + str(clf.score(x_test, y_test)*100)+ ' %')
 
-print('<=======================================================>\n')
+if __name__ == "__main__":
+    data = load_and_preprocess_data("Articles.csv")
 
+    x = data["Article"]
+    encoder = LabelEncoder()
+    y = encoder.fit_transform(data["NewsType"])
 
-print('<================= Logistic Regression =================>')
-logistic = LogisticRegression()
-logistic.fit(x_train,y_train)
-print('Correct % for Logistic Regression : ' + str(logistic.score(x_test, y_test)*100) + ' %')
+    x_train, x_test, y_train, y_test = train_test_split(
+        x, y, test_size=0.2, random_state=SEED
+    )
+    vectorizer = CountVectorizer()
+    x_train = vectorizer.fit_transform(x_train)
+    x_test = vectorizer.transform(x_test)
 
-print('<=======================================================>\n')
+    models = [
+        KNeighborsClassifier(n_neighbors=3),
+        MLPClassifier(
+            solver="lbfgs", alpha=1e-5, hidden_layer_sizes=(6,), random_state=SEED
+        ),
+        LogisticRegression(max_iter=10000, random_state=SEED),
+        MultinomialNB(),
+    ]
 
-
-print('<============== Naive Bayes ============================>')
-gnb = MultinomialNB()
-gnb.fit(x_train, y_train)
-print('Correct % for Naive Bayes : ' + str(gnb.score(x_test, y_test)*100) + ' %')
-
-print('<========================================================>\n')
+    for model in models:
+        train_and_test_model(model, x_train, y_train, x_test, y_test)
